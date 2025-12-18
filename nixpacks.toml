@@ -1,9 +1,0 @@
-[phases.setup]
-nixPkgs = ["go_1_21", "gcc"]
-
-[phases.build]
-cmds = ["mkdir -p data", "go build -ldflags=\"-w -s\" -o server ./api/main.go"]
-
-[start]
-cmd = "./server -f api/etc/config.yaml"
-
