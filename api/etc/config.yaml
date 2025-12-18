@@ -1,0 +1,34 @@
+Name: acupofcoffee-api
+Host: 0.0.0.0
+Port: 8080
+Mode: dev
+
+Log:
+  ServiceName: acupofcoffee-api
+  Mode: console
+  Level: info
+  Encoding: plain
+  Path: logs
+
+MySQL:
+  # SQLite 开发模式（无需安装 MySQL）
+  DataSource: sqlite:./data/acupofcoffee.db
+  # 生产环境使用 MySQL：root:password@tcp(localhost:3306)/acupofcoffee?charset=utf8mb4&parseTime=True&loc=Local
+  MaxIdleConns: 10
+  MaxOpenConns: 100
+
+Redis:
+  Host: localhost:6379
+  Type: node
+  Pass: ""
+
+Auth:
+  AccessSecret: your-access-secret-key-here-change-in-production
+  AccessExpire: 86400
+
+Telemetry:
+  Name: acupofcoffee-api
+  Endpoint: http://localhost:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+

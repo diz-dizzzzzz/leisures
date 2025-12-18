@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acupofcoffee-api
+  labels:
+    app: acupofcoffee-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: acupofcoffee-api
+  template:
+    metadata:
+      labels:
+        app: acupofcoffee-api
+    spec:
+      containers:
+        - name: acupofcoffee-api
+          image: acupofcoffee-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: config
+              mountPath: /app/etc
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: acupofcoffee-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acupofcoffee-api
+spec:
+  selector:
+    app: acupofcoffee-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: acupofcoffee-config
+data:
+  config.yaml: |
+    Name: acupofcoffee-api
+    Host: 0.0.0.0
+    Port: 8080
+    Mode: pro
+    
+    Log:
+      ServiceName: acupofcoffee-api
+      Mode: file
+      Level: info
+      Encoding: json
+      Path: /app/logs
+    
+    MySQL:
+      DataSource: root:password@tcp(mysql-service:3306)/acupofcoffee?charset=utf8mb4&parseTime=True&loc=Local
+      MaxIdleConns: 10
+      MaxOpenConns: 100
+    
+    Redis:
+      Host: redis-service:6379
+      Type: node
+      Pass: ""
+    
+    Auth:
+      AccessSecret: your-production-secret-key-change-me
+      AccessExpire: 86400
+
